@@ -7,6 +7,8 @@ import FormInput from "../form-input/form-input.component";
 import "./sign-up-form.styles.scss";
 import Button from "../button/button.component";
 import Toast from "../additional-components/toast/toast.component";
+import { useDispatch, useSelector } from "react-redux";
+import { registrationRequest } from "../../slice/registration.slice";
 
 const statusMessages = {
   1: {
@@ -17,17 +19,20 @@ const statusMessages = {
   3: { color: "red", message: "Password should be at least 6 characters long" },
 };
 const defaultFormFields = {
-  displayName: "",
   email: "",
+  firstName: "",
+  lastName: "",
   password: "",
-  confirmPassword: "",
+  isSubscribed:false,
 };
 
 const SignUpForm = () => {
   const [formFields, setFormFields] = useState(defaultFormFields);
-  const { displayName, email, password, confirmPassword } = formFields;
+  const {email,firstName,lastName,password,isSubscribed } = formFields;
   const [error, setError] = useState(null);
   const [showAlert, setShowAlert] = useState(false);
+  const data = useSelector(y=>y.registration);
+  const mydis = useDispatch();
 
   const resetFormFields = () => {
     setFormFields(defaultFormFields);
@@ -35,37 +40,27 @@ const SignUpForm = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (password !== confirmPassword) {
-      setError(statusMessages[2]);
-      setShowAlert(true);
-      return;
-    }
+   
     try {
-      const { user } = await createAuthUserFromEmailAndPassword(
-        email,
-        password
-      );
-      await createUserDocumentFromAuth(user, { displayName });
-      resetFormFields();
+      mydis(registrationRequest(formFields))
+      
     } catch (error) {
-      if (error.code === "auth/email-already-in-use") {
-        setError(statusMessages[1]);
-        setShowAlert(true);
-      } else if (error.code === "auth/weak-password") {
-        setError(statusMessages[3]);
-        setShowAlert(true);
-      }
-      console.log("User creation encountered an error", error);
+     
     }
-    setTimeout(() => {
-      setShowAlert(false);
-      setError(null);
-    }, 5000);
+   
   };
 
   const handleChange = (event) => {
-    const { name, value } = event.target;
-    setFormFields({ ...formFields, [name]: value });
+    const { name, value,type,checked } = event.target;
+
+    if(type =="checkbox")
+      {
+    setFormFields({ ...formFields, [name]: checked });
+      }
+      else
+      {
+        setFormFields({ ...formFields, [name]: value });
+      }
   };
   return (
     <div className="sign-up-container">
@@ -73,17 +68,8 @@ const SignUpForm = () => {
       <span>Sign up with your email and password</span>
       <form onSubmit={handleSubmit}>
         <FormInput
-          label="Display Name"
+          label="Email Address"
           type="text"
-          name="displayName"
-          required
-          onChange={handleChange}
-          value={displayName}
-        />
-
-        <FormInput
-          label="Email"
-          type="email"
           name="email"
           required
           onChange={handleChange}
@@ -91,22 +77,42 @@ const SignUpForm = () => {
         />
 
         <FormInput
-          label="Password"
+          label="firstName"
+          type="text"
+          name="firstName"
+          required
+          onChange={handleChange}
+          value={firstName}
+        />
+
+        <FormInput
+          label="lastName"
+          type="text"
+          name="lastName"
+          required
+          onChange={handleChange}
+          value={lastName}
+        />
+
+        <FormInput
+          label=" Password"
           type="password"
           name="password"
           required
           onChange={handleChange}
           value={password}
         />
-
-        <FormInput
-          label="Confirm Password"
-          type="password"
-          name="confirmPassword"
+ <FormInput
+          label=" isSubscribed"
+          type="checkbox"
+          name="isSubscribed"
           required
           onChange={handleChange}
-          value={confirmPassword}
+          value={isSubscribed}
+
         />
+
+
         <Button type="submit">Sign Up</Button>
         {showAlert && <Toast color={error.color} message={error.message} />}
       </form>

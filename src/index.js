@@ -7,9 +7,10 @@ import reportWebVitals from "./reportWebVitals";
 import { OrderProvider } from "./contexts/orders.context";
 import { stripePromise } from "./utils/stripe/stripe.utils";
 import { Elements } from "@stripe/react-stripe-js";
-import { store } from "./store/store";
+
 import "./index.scss";
 import { BrowserRouter } from "react-router-dom";
+import store from "./mstore/store";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
