@@ -19,7 +19,7 @@ function* asynRegistration(action)
 
 }
 
-function* watcherRegistration()
+export function* watcherRegistration()
 {
     yield takeLeading(registrationRequest().type,asynRegistration)
 }
